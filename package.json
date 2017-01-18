@@ -1,0 +1,24 @@
+{
+  "name": "oauth-2.0-poc",
+  "version": "0.0.1",
+  "description": "An OAuth 2.0 PoC",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dunkelheit/oauth-2.0-poc.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Dunkelheit/oauth-2.0-poc/issues"
+  },
+  "homepage": "https://github.com/Dunkelheit/oauth-2.0-poc#readme",
+  "dependencies": {
+    "node-oauth2-server": "^2.4.0",
+    "passport": "^0.3.2",
+    "passport-oauth2": "^1.4.0"
+  }
+}
