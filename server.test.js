@@ -3,7 +3,6 @@
 const request = require('request');
 const expect = require('chai').expect;
 
-
 const host = 'http://localhost';
 const port = 3000;
 const BASE_URL = host + ':' + port + '/';
@@ -126,6 +125,42 @@ describe('OAuth 2.0 PoC Server', function () {
                 expect(body).to.have.keys('token_type', 'access_token', 'expires_in', 'refresh_token');
                 done();
             });
+        });
+    });
+
+    it('Does not allow expired tokens', function (done) {
+        this.timeout(5000);
+
+        var app2 = require('./server-expired');
+        app2.listen(3001, function () {
+
+            request.post('http://localhost:3001/oauth/token', {
+                form: {
+                    grant_type: 'password',
+                    client_id: 'thom',
+                    client_secret: 'nightworld',
+                    username: 'thomseddon',
+                    password: 'nightworld'
+                }
+            }, function (err, res, body) {
+                expect(res.statusCode).to.be.eql(200);
+                body = JSON.parse(body);
+                var accessToken = body.access_token;
+                setTimeout(function () {
+                    request.get('http://localhost:3001/', {
+                        headers: {
+                            Authorization: 'Bearer ' + accessToken
+                        }
+                    }, function (err, res, body) {
+                        expect(res.statusCode).to.be.eql(401);
+                        body = JSON.parse(body);
+                        expect(body).to.have.keys('code', 'error', 'error_description');
+                        expect(body).to.have.property('error_description', 'The access token provided has expired.');
+                        done();
+                    });
+                }, 2000);
+            });
+
         });
     });
 

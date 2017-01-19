@@ -14,7 +14,9 @@ var model = require('./model');
 app.oauth = oauthserver({
     model: model,
     grants: ['password', 'refresh_token'],
-    debug: false
+    debug: false,
+    accessTokenLifetime: 1,
+    refreshTokenLifetime: 5
 });
 
 app.all('/oauth/token', app.oauth.grant());
