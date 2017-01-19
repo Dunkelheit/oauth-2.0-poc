@@ -1,8 +1,8 @@
 'use strict';
 
-var express = require('express'),
-    bodyParser = require('body-parser'),
-    oauthserver = require('oauth2-server');
+var express = require('express');
+var bodyParser = require('body-parser');
+var oauthserver = require('oauth2-server');
 
 var app = express();
 
@@ -14,7 +14,7 @@ var model = require('./model');
 app.oauth = oauthserver({
     model: model,
     grants: ['password', 'refresh_token'],
-    debug: true
+    debug: false
 });
 
 app.all('/oauth/token', app.oauth.grant());
@@ -25,4 +25,5 @@ app.get('/', app.oauth.authorise(), function (req, res) {
 
 app.use(app.oauth.errorHandler());
 
-app.listen(3000);
+module.exports = app;
+
