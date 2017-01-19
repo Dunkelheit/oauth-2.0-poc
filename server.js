@@ -4,31 +4,48 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var oauthserver = require('oauth2-server');
 
-var app = express();
+module.exports = {
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+    create: function (options) {
+        options = options || {};
+        
+        var app = express();
 
-var model = require('./model');
+        app.use(bodyParser.urlencoded({ extended: true }));
+        app.use(bodyParser.json());
 
-app.oauth = oauthserver({
-    model: model,
-    grants: ['password', 'refresh_token'],
-    debug: false
-});
+        var model = require('./model');
 
-app.all('/oauth/token', app.oauth.grant());
+        var oauthConfig = {
+            model: options.model || model,
+            grants: options.grant || ['password', 'refresh_token']
+        };
 
-app.get('/', app.oauth.authorise(), function (req, res) {
-    res.send('Secret area');
-});
+        if (options.accessTokenLifetime) {
+            oauthConfig.accessTokenLifetime = options.accessTokenLifetime;
+        }
+        if (options.refreshTokenLifetime) {
+            oauthConfig.refreshTokenLifetime = options.refreshTokenLifetime;
+        }
 
-app.get('/dump', function (req, res) {
-    model.dump();
-    res.send('Check the console to see the dump');
-});
+        app.oauth = oauthserver(oauthConfig);
 
-app.use(app.oauth.errorHandler());
+        app.all('/oauth/token', app.oauth.grant());
 
-module.exports = app;
+        app.get('/', app.oauth.authorise(), function (req, res) {
+            res.send('Secret area');
+        });
+
+        app.get('/dump', function (req, res) {
+            model.dump();
+            res.send('Check the console to see the dump');
+        });
+
+        app.use(app.oauth.errorHandler());
+
+        return app;
+    }
+
+};
+
 

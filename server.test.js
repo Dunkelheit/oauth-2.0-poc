@@ -12,8 +12,8 @@ const SECRET_URL = BASE_URL;
 var app;
 
 before(function (done) {
-    app = require('./server');
-    app.listen(port, function () {
+    app = require('./server').create();
+    app = app.listen(port, function () {
         console.log('Ok boss, up and running!');
         done();
     });
@@ -131,10 +131,15 @@ describe('OAuth 2.0 PoC Server', function () {
     it('Does not allow expired tokens', function (done) {
         this.timeout(5000);
 
-        var app2 = require('./server-expired');
-        app2.listen(3001, function () {
+        app.close();
+        app = require('./server').create({
+            accessTokenLifetime: 1,
+            refreshTokenLifetime: 5
+        });
 
-            request.post('http://localhost:3001/oauth/token', {
+        app = app.listen(port, function () {
+
+            request.post(OAUTH_URL, {
                 form: {
                     grant_type: 'password',
                     client_id: 'thom',
@@ -147,7 +152,7 @@ describe('OAuth 2.0 PoC Server', function () {
                 body = JSON.parse(body);
                 var accessToken = body.access_token;
                 setTimeout(function () {
-                    request.get('http://localhost:3001/', {
+                    request.get(SECRET_URL, {
                         headers: {
                             Authorization: 'Bearer ' + accessToken
                         }
